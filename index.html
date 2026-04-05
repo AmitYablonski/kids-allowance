@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>קופת ילדים</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #1a1a2e; color: #fff; min-height: 100vh; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 20px; color: #ffd700; }
+    .kid-card { background: #16213e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .kid-name { font-size: 1.2em; font-weight: bold; margin-bottom: 8px; }
+    .kid-balance { font-size: 1.5em; color: #4ecca3; }
+    .kid-deposits { font-size: 0.85em; color: #888; margin-top: 8px; }
+    .add-form { background: #16213e; border-radius: 12px; padding: 16px; margin-top: 20px; }
+    .add-form h2 { margin-bottom: 12px; }
+    input, select, button { width: 100%; padding: 10px; margin-bottom: 10px; border: none; border-radius: 6px; }
+    input, select { background: #0f3460; color: #fff; }
+    button { background: #e94560; color: #fff; cursor: pointer; font-weight: bold; }
+    button:hover { background: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💰 קופת ילדים</h1>
+    <div id="kids"></div>
+    
+    <div class="add-form">
+      <h2>הוסף הפקדה</h2>
+      <select id="kidSelect"></select>
+      <input type="number" id="amount" placeholder="סכום (₪)" step="0.01">
+      <input type="date" id="date">
+      <button onclick="addDeposit()">הוסף</button>
+    </div>
+  </div>
+
+  <script>
+    const INTEREST_RATE = 0.10; // 10% per month
+    
+    function getMonthsDiff(startDate) {
+      const now = new Date();
+      const start = new Date(startDate);
+      const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+      // Add partial month
+      const daysInMonth = 30;
+      const days = (now - start) / (1000 * 60 * 60 * 24);
+      return months + (days % daysInMonth) / daysInMonth;
+    }
+    
+    function calculateBalance(deposits) {
+      return deposits.reduce((sum, d) => {
+        const months = getMonthsDiff(d.date);
+        const interest = d.amount * Math.pow(1 + INTEREST_RATE / 12, months);
+        return sum + interest;
+      }, 0);
+    }
+    
+    function loadKids() {
+      return JSON.parse(localStorage.getItem('kids') || '[]');
+    }
+    
+    function saveKids(kids) {
+      localStorage.setItem('kids', JSON.stringify(kids));
+    }
+    
+    function render() {
+      const kids = loadKids();
+      const container = document.getElementById('kids');
+      const select = document.getElementById('kidSelect');
+      
+      container.innerHTML = kids.map(kid => {
+        const balance = calculateBalance(kid.deposits);
+        const depositsList = kid.deposits.map(d => 
+          `${d.amount}₪ (${d.date})`
+        ).join(', ');
+        return `
+          <div class="kid-card">
+            <div class="kid-name">${kid.name}</div>
+            <div class="kid-balance">${balance.toFixed(2)} ₪</div>
+            <div class="kid-deposits">הפקדות: ${depositsList || 'אין'}</div>
+          </div>
+        `;
+      }).join('');
+      
+      select.innerHTML = kids.map(kid => `<option value="${kid.name}">${kid.name}</option>`).join('');
+    }
+    
+    function addDeposit() {
+      const name = document.getElementById('kidSelect').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const date = document.getElementById('date').value;
+      
+      if (!amount || !date) return alert('נא למלא סכום ותאריך');
+      
+      const kids = loadKids();
+      const kid = kids.find(k => k.name === name);
+      if (kid) {
+        kid.deposits.push({ amount, date });
+        saveKids(kids);
+        render();
+      }
+    }
+    
+    // Initialize with 3 kids if empty
+    if (loadKids().length === 0) {
+      const now = new Date().toISOString().split('T')[0];
+      const chanuka = '2025-12-01'; // Approximate
+      const pesach = '2026-04-01'; // Approximate
+      
+      const kids = [
+        { name: 'ילד א׳', deposits: [{ amount: 20, date: chanuka }, { amount: 16.67, date: pesach }] },
+        { name: 'ילד ב׳', deposits: [{ amount: 20, date: chanuka }, { amount: 16.67, date: pesach }] },
+        { name: 'ילד ג׳', deposits: [{ amount: 20, date: chanuka }, { amount: 16.67, date: pesach }] }
+      ];
+      saveKids(kids);
+    }
+    
+    render();
+  </script>
+</body>
+</html>
