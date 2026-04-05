@@ -1,5 +1,5 @@
 [
-  { "name": "ילד א׳", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }] },
-  { "name": "ילד ב׳", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }] },
-  { "name": "ילד ג׳", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }] }
+  { "name": "אביב", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }, { "amount": 20, "date": "2025-12-20" }] },
+  { "name": "שקד", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }, { "amount": 20, "date": "2025-12-20" }] },
+  { "name": "בר", "deposits": [{ "amount": 20, "date": "2025-12-01" }, { "amount": 16.67, "date": "2026-04-01" }, { "amount": 20, "date": "2025-12-20" }] }
 ]
